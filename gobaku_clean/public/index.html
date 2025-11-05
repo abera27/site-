@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>現在地の取得</title>
+</head>
+<body>
+  <button id="getLocation">現在地を取得</button>
+  <p id="location"></p>
+  <button onclick="window.location.href='search.html'">近くの店を検索へ</button>
+
+  <script>
+    document.getElementById('getLocation').addEventListener('click', function() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async position => {
+          const latitude = position.coords.latitude;
+          const longitude = position.coords.longitude;
+          document.getElementById('location').innerText = `緯度: ${latitude}, 経度: ${longitude}`;
+
+          await fetch('/save-location', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ latitude, longitude })
+          });
+        });
+      } else {
+        document.getElementById('location').innerText = "位置情報サービスがサポートされていません";
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>管理者ページ</title>
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY"></script>
+  <style>
+    #map { width: 100%; height: 400px; margin-top: 15px; border: 2px solid #444; }
+  </style>
+</head>
+<body>
+  <h2>🔐 位置情報 管理画面</h2>
+  <input type="password" id="pass" placeholder="パスワード">
+  <button id="start">地図表示開始</button>
+
+  <div id="map"></div>
+
+  <script>
+    let map;
+    let marker;
+
+    function initMap(lat = 35.6812, lng = 139.7671) {
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: { lat, lng },
+        zoom: 16
+      });
+
+      marker = new google.maps.Marker({
+        position: { lat, lng },
+        map: map,
+        title: "現在位置"
+      });
+    }
+
+    async function updateLocation() {
+      const password = document.getElementById('pass').value;
+      const res = await fetch('/admin/location', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      });
+
+      const data = await res.json();
+      if (!data.latitude) return;
+
+      const newPos = { lat: parseFloat(data.latitude), lng: parseFloat(data.longitude) };
+      marker.setPosition(newPos);
+      map.setCenter(newPos);
+    }
+
+    document.getElementById('start').addEventListener('click', () => {
+      initMap();
+      setInterval(updateLocation, 5000);
+    });
+  </script>
+</body>
+</html>

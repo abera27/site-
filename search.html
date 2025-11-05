@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>近くの場所を検索</title>
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script>
+</head>
+<body>
+  <h2>🏪 近くのホームセンターを検索</h2>
+  <input type="text" id="location" placeholder="例: 35.6812,139.7671（緯度,経度）">
+  <button id="search">検索</button>
+
+  <div id="results"></div>
+
+  <script>
+    document.getElementById('search').addEventListener('click', function() {
+      const input = document.getElementById('location').value.trim();
+      const [lat, lng] = input.split(',').map(Number);
+
+      if (isNaN(lat) || isNaN(lng)) {
+        document.getElementById('results').innerHTML = "<p style='color:red;'>⚠ 緯度と経度を正しく入力してください。</p>";
+        return;
+      }
+
+      const location = new google.maps.LatLng(lat, lng);
+      const service = new google.maps.places.PlacesService(document.createElement('div'));
+      const request = {
+        location,
+        radius: 1500,
+        type: ['home_goods_store']
+      };
+
+      service.nearbySearch(request, function(results, status) {
+        const output = document.getElementById('results');
+        output.innerHTML = '';
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+          results.forEach(place => {
+            output.innerHTML += `<p>🏠 ${place.name} (${place.vicinity})</p>`;
+          });
+        } else {
+          output.innerHTML = `<p>結果が見つかりませんでした。</p>`;
+        }
+      });
+    });
+  </script>
+</body>
+</html>
